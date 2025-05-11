@@ -8,9 +8,8 @@ class MyUnitsList extends StatelessWidget {
   MyUnitsList({required this.deviceStatus, required this.onControlDevice});
 
   final List<Map<String, dynamic>> units = [
-    {'name': 'Quạt', 'icon': Icons.air_rounded, 'color': Colors.purple, 'location': 'Home'},
-    {'name': 'Điều chỉnh công suất', 'icon': Icons.shield, 'color': Colors.grey, 'location': 'Home'},
-    {'name': 'pzem004-t', 'icon': Icons.electrical_services, 'color': Colors.blue, 'location': 'Home'},
+    {'name': 'Fan', 'icon': Icons.air_rounded, 'color': Colors.purple, 'location': 'Home'},
+    {'name': 'Light', 'icon': Icons.lightbulb, 'color': Colors.yellow, 'location': 'Home'},
   ];
 
   @override
