@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../screen/room.dart';
-import '../screen/room_service.dart';
+import '../models/room.dart';
+import '../services/room_service.dart';
 
 class AddDeviceScreen extends StatefulWidget {
   final String roomId;
@@ -61,7 +61,7 @@ class _AddDeviceScreenState extends State<AddDeviceScreen> {
       final newDevice = Device(
         id: newDeviceId,
         name: _nameController.text.trim(),
-        icon: _selectedDeviceType,
+        type: _selectedDeviceType,
         isOn: false,
         powerConsumption: _powerConsumption,
       );

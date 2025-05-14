@@ -1,31 +1,18 @@
-class Room {
-  final String id;
-  final String name;
-  final List<Device> devices;
-  double temperature;
-  double humidity;
+// class Room {
+//   final String id;
+//   final String name;
+//   final List<Device> devices;
+//   double temperature;
+//   double humidity;
+//   PowerStats powerStats;
   
-  Room({
-    required this.id,
-    required this.name,
-    required this.devices,
-    this.temperature = 0.0,
-    this.humidity = 0.0,
-  });
-}
+//   Room({
+//     required this.id,
+//     required this.name,
+//     required this.devices,
+//     this.temperature = 0.0,
+//     this.humidity = 0.0,
+//     PowerStats? powerStats,
+//   }) : this.powerStats = powerStats ?? PowerStats();
+// }
 
-class Device {
-  final String id;
-  final String name;
-  final String icon;
-  bool isOn;
-  double powerConsumption; // Công suất tiêu thụ (W)
-  
-  Device({
-    required this.id,
-    required this.name,
-    required this.icon,
-    this.isOn = false,
-    this.powerConsumption = 0.0,
-  });
-}

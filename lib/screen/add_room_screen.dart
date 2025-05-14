@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../screen/room.dart';
-import '../screen/room_service.dart';
+import '../models/room.dart';
+import '../services/room_service.dart';
 
 class AddRoomScreen extends StatefulWidget {
   @override

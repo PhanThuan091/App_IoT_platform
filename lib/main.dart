@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'screen/dashboard_screen.dart';
-import 'screen/shared_screen.dart';
-import 'screen/smart_screen.dart';
+import 'screen/room_screen.dart';
 import 'screen/notification_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,10 +13,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        fontFamily: 'Arial',
-      ),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: MainScreen(),
     );
   }
@@ -32,8 +31,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _screens = [
     DashboardScreen(),
-    SharedScreen(),
-    SmartScreen(),
+    RoomsScreen(),
     NotificationScreen(),
   ];
 
@@ -51,16 +49,17 @@ class _MainScreenState extends State<MainScreen> {
         children: _screens,
       ),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
-        selectedItemColor: Colors.blue,
+        selectedItemColor: Theme.of(context).primaryColor,
         unselectedItemColor: Colors.grey,
         showUnselectedLabels: true,
         items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Dashboard'),
-          BottomNavigationBarItem(icon: Icon(Icons.share), label: 'Shared'),
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Smart'),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notification'),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Tổng quan'),
+          BottomNavigationBarItem(icon: Icon(Icons.meeting_room), label: 'Phòng'),
+          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Thông báo'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Cài đặt'),
         ],
       ),
     );

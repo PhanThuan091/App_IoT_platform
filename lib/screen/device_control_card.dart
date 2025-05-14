@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../screen/room.dart';
+import '../models/room.dart';
 
 class DeviceControlCard extends StatelessWidget {
   final Device device;
@@ -32,7 +32,7 @@ class DeviceControlCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(
-                _getDeviceIcon(device.icon),
+                _getDeviceIcon(device.type),
                 color: device.isOn ? _getDeviceColor(device.name) : Colors.grey,
                 size: 24,
               ),
