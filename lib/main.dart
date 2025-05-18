@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screen/dashboard_screen.dart';
-import 'screen/shared_screen.dart';
-import 'screen/smart_screen.dart';
-import 'screen/notification_screen.dart';
+import 'screens/dashboard_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,56 +10,24 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      title: 'IoT Smart Home',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        fontFamily: 'Arial',
+        fontFamily: 'Roboto',
+        brightness: Brightness.light,
+        useMaterial3: true,
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+          centerTitle: true,
+          elevation: 0,
+        ),
+        cardTheme: CardTheme(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        ),
       ),
-      home: MainScreen(),
-    );
-  }
-}
-
-class MainScreen extends StatefulWidget {
-  @override
-  _MainScreenState createState() => _MainScreenState();
-}
-
-class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
-
-  final List<Widget> _screens = [
-    DashboardScreen(),
-    SharedScreen(),
-    SmartScreen(),
-    NotificationScreen(),
-  ];
-
-  void _onTabTapped(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _screens,
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onTabTapped,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        showUnselectedLabels: true,
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Dashboard'),
-          BottomNavigationBarItem(icon: Icon(Icons.share), label: 'Shared'),
-          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Smart'),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notification'),
-        ],
-      ),
+      home: DashboardScreen(),
     );
   }
 }

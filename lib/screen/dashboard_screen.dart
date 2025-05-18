@@ -78,8 +78,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
     
     // Thay thế URL bằng địa chỉ thực của server
-    // final success = await _roomService.connect('ws://192.168.79.92:1880/ws/smart_home');//lab huy
-    final success = await _roomService.connect('ws://192.168.100.74:1880/ws/smart_home');// home thuan
+    final success = await _roomService.connect('ws://192.168.79.92:1880/ws/smart_home');//lab huy
+    // final success = await _roomService.connect('ws://192.168.100.74:1880/ws/smart_home');// home thuan
     setState(() {
       _isConnected = success;
     });

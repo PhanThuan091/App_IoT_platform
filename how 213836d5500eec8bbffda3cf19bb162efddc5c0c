@@ -1,0 +1,179 @@
+[33mcommit 213836d5500eec8bbffda3cf19bb162efddc5c0c[m
+Author: Phan Thuan <thuanphan8482@gmail.com>
+Date:   Sun May 11 09:42:32 2025 +0700
+
+    update websocket
+
+[1mdiff --git a/lib/screen/dashboard_screen.dart b/lib/screen/dashboard_screen.dart[m
+[1mindex 57b447c..525a4ae 100644[m
+[1m--- a/lib/screen/dashboard_screen.dart[m
+[1m+++ b/lib/screen/dashboard_screen.dart[m
+[36m@@ -1,7 +1,7 @@[m
+ import 'package:flutter/material.dart';[m
+[32m+[m[32mimport 'package:flutter/scheduler.dart'; // Thêm để sử dụng SchedulerBinding[m
+ import 'dart:async';[m
+[31m-import 'package:mqtt_client/mqtt_client.dart';[m
+[31m-import 'package:mqtt_client/mqtt_server_client.dart';[m
+[32m+[m[32mimport 'package:web_socket_channel/io.dart';[m
+ import '../widgets/weather_card.dart';[m
+ import '../widgets/my_units_list.dart';[m
+ import 'edit_units_screen.dart';[m
+[36m@@ -14,11 +14,11 @@[m [mclass DashboardScreen extends StatefulWidget {[m
+ class _DashboardScreenState extends State<DashboardScreen> {[m
+   late String _currentTime;[m
+   late String _greeting;[m
+[31m-  late Timer _timer;[m
+   late String _currentDate;[m
+[31m-  MqttServerClient? _client; // Client MQTT[m
+[32m+[m[32m  late Timer _timer;[m
+[32m+[m[32m  IOWebSocketChannel? _channel; // WebSocket channel[m
+   bool _isConnected = false; // Trạng thái kết nối[m
+[31m-  Map<String, bool> _deviceStatus = {}; // Trạng thái thiết bị (bật/tắt)[m
+[32m+[m[32m  Map<String, bool> _deviceStatus = {'Fan': false, 'Light': false}; // Trạng thái thiết bị[m
+ [m
+   @override[m
+   void initState() {[m
+[36m@@ -27,7 +27,82 @@[m [mclass _DashboardScreenState extends State<DashboardScreen> {[m
+     _greeting = _getGreeting();[m
+     _currentDate = _getCurrentDate();[m
+     _timer = Timer.periodic(Duration(seconds: 1), _updateTime);[m
+[31m-    _connectToServer(); // Kết nối tới server khi khởi động[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  @override[m
+[32m+[m[32m  void didChangeDependencies() {[m
+[32m+[m[32m    super.didChangeDependencies();[m
+[32m+[m[32m    // Khởi tạo WebSocket trong didChangeDependencies[m
+[32m+[m[32m    if (_channel == null) {[m
+[32m+[m[32m      _initializeWebSocket();[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  // Khởi tạo WebSocket[m
+[32m+[m[32m  void _initializeWebSocket() {[m
+[32m+[m[32m    try {[m
+[32m+[m[32m      _channel = IOWebSocketChannel.connect('ws://192.168.79.92:1880/ws/devices');[m
+[32m+[m[32m      // _channel = IOWebSocketChannel.connect('ws://192.168.100.74:1880/ws/devices');[m
+[32m+[m[32m      _channel!.stream.listen([m
+[32m+[m[32m        (message) {[m
+[32m+[m[32m          print('Nhận được dữ liệu: $message');[m
+[32m+[m[32m          _handleReceivedMessage(message);[m
+[32m+[m[32m        },[m
+[32m+[m[32m        onDone: () {[m
+[32m+[m[32m          print('Kết nối WebSocket bị đóng');[m
+[32m+[m[32m          setState(() {[m
+[32m+[m[32m            _isConnected = false;[m
+[32m+[m[32m          });[m
+[32m+[m[32m          // Dùng post-frame callback để hiển thị SnackBar[m
+[32m+[m[32m          SchedulerBinding.instance.addPostFrameCallback((_) {[m
+[32m+[m[32m            ScaffoldMessenger.of(context).showSnackBar([m
+[32m+[m[32m              SnackBar(content: Text('Mất kết nối tới server')),[m
+[32m+[m[32m            );[m
+[32m+[m[32m          });[m
+[32m+[m[32m        },[m
+[32m+[m[32m        onError: (error) {[m
+[32m+[m[32m          print('Lỗi WebSocket: $error');[m
+[32m+[m[32m          setState(() {[m
+[32m+[m[32m            _isConnected = false;[m
+[32m+[m[32m          });[m
+[32m+[m[32m          // Dùng post-frame callback để hiển thị SnackBar[m
+[32m+[m[32m          SchedulerBinding.instance.addPostFrameCallback((_) {[m
+[32m+[m[32m            ScaffoldMessenger.of(context).showSnackBar([m
+[32m+[m[32m              SnackBar(content: Text('Lỗi kết nối tới server')),[m
+[32m+[m[32m            );[m
+[32m+[m[32m          });[m
+[32m+[m[32m        },[m
+[32m+[m[32m      );[m
+[32m+[m[32m      setState(() {[m
+[32m+[m[32m        _isConnected = true;[m
+[32m+[m[32m      });[m
+[32m+[m[32m      print('Đã kết nối tới WebSocket server');[m
+[32m+[m[32m    } catch (e) {[m
+[32m+[m[32m      print('Lỗi khởi tạo WebSocket: $e');[m
+[32m+[m[32m      setState(() {[m
+[32m+[m[32m        _isConnected = false;[m
+[32m+[m[32m      });[m
+[32m+[m[32m      // Dùng post-frame callback để hiển thị SnackBar[m
+[32m+[m[32m      SchedulerBinding.instance.addPostFrameCallback((_) {[m
+[32m+[m[32m        ScaffoldMessenger.of(context).showSnackBar([m
+[32m+[m[32m          SnackBar(content: Text('Không thể kết nối tới server')),[m
+[32m+[m[32m        );[m
+[32m+[m[32m      });[m
+[32m+[m[32m    }[m
+[32m+[m[32m  }[m
+[32m+[m
+[32m+[m[32m  // Xử lý dữ liệu nhận được từ WebSocket[m
+[32m+[m[32m  void _handleReceivedMessage(String message) {[m
+[32m+[m[32m    if (message.contains('device')) {[m
+[32m+[m[32m      final parts = message.split(':');[m
+[32m+[m[32m      if (parts.length == 3) {[m
+[32m+[m[32m        final deviceName = parts[1];[m
+[32m+[m[32m        final status = parts[2] == 'ON';[m
+[32m+[m[32m        setState(() {[m
+[32m+[m[32m          _deviceStatus[deviceName] = status;[m
+[32m+[m[32m        });[m
+[32m+[m[32m      }[m
+[32m+[m[32m    }[m
+   }[m
+ [m
+   // Lấy thời gian hiện tại[m
+[36m@@ -58,76 +133,26 @@[m [mclass _DashboardScreenState extends State<DashboardScreen> {[m
+     });[m
+   }[m
+ [m
+[31m-  // Kết nối tới server MQTT trên Raspberry Pi[m
+[32m+[m[32m  // Kết nối tới server WebSocket[m
+   Future<void> _connectToServer() async {[m
+[31m-    _client = MqttServerClient('192.168.79.91', 'flutter_client');[m
+[31m-    _client!.port = 1883; // Cổng mặc định của MQTT[m
+[31m-    _client!.logging(on: false);[m
+[31m-    _client!.onConnected = _onConnected;[m
+[31m-    _client!.onDisconnected = _onDisconnected;[m
+[31m-    _client!.onSubscribed = _onSubscribed;[m
+[31m-[m
+[31m-    final connMessage = MqttConnectMessage()[m
+[31m-        .withClientIdentifier('flutter_client')[m
+[31m-        .startClean()[m
+[31m-        .withWillQos(MqttQos.atLeastOnce);[m
+[31m-    _client!.connectionMessage = connMessage;[m
+[31m-[m
+[31m-    try {[m
+[31m-      await _client!.connect();[m
+[31m-    } catch (e) {[m
+[31m-      print('Kết nối thất bại: $e');[m
+[31m-      _client!.disconnect();[m
+[32m+[m[32m    if (_isConnected) {[m
+[32m+[m[32m      ScaffoldMessenger.of(context).showSnackBar([m
+[32m+[m[32m        SnackBar(content: Text('Đã kết nối tới server')),[m
+[32m+[m[32m      );[m
+[32m+[m[32m      return;[m
+     }[m
+[31m-[m
+[31m-    // Lắng nghe dữ liệu từ server[m
+[31m-    _client!.updates!.listen((List<MqttReceivedMessage<MqttMessage>>? c) {[m
+[31m-      final recMess = c![0].payload as MqttPublishMessage;[m
+[31m-      final payload = MqttPublishPayload.bytesToStringAsString(recMess.payload.message);[m
+[31m-      setState(() {[m
+[31m-        // Cập nhật trạng thái thiết bị từ dữ liệu nhận được[m
+[31m-        if (payload.contains('device')) {[m
+[31m-          final deviceName = payload.split(':')[1];[m
+[31m-          final status = payload.split(':')[2] == 'ON';[m
+[31m-          _deviceStatus[deviceName] = status;[m
+[31m-        }[m
+[31m-      });[m
+[31m-    });[m
+[31m-[m
+[31m-    // Đăng ký topic để nhận dữ liệu từ LoRa[m
+[31m-    _client!.subscribe('lora/devices', MqttQos.atLeastOnce);[m
+[31m-  }[m
+[31m-[m
+[31m-  // Khi kết nối thành công[m
+[31m-  void _onConnected() {[m
+[31m-    setState(() {[m
+[31m-      _isConnected = true;[m
+[31m-    });[m
+[31m-    print('Đã kết nối tới server');[m
+[31m-  }[m
+[31m-[m
+[31m-  // Khi mất kết nối[m
+[31
