@@ -14,6 +14,7 @@ class IoTService {
   IOWebSocketChannel? _channelRoom2;
   bool isConnected = false;
   
+  List<RoomData> _room1Data = [];
   // Danh sách các phòng
   List<Room> rooms = [
     Room(
@@ -23,14 +24,18 @@ class IoTService {
       humidity: 65.0,
       voltage: 220.0,
       current: 1.2,
-      frequency: 50.0,
+      // frequency: 50.0,
       power: 264.0,
       energyUsage: 1.5,
       powerHistory: _generateInitialPowerData(),
       devices: [
-        Device(id: 'fan_1', name: 'Quạt trần', icon: 'fan'),
-        Device(id: 'light_1', name: 'Đèn chính', icon: 'light'),
-        Device(id: 'tv_1', name: 'TV', icon: 'tv'),
+        // Device(id: 'room1_fan', name: 'Quạt trần', icon: 'fan'),
+        // Device(id: 'room1_lamp1', name: 'Đèn chính', icon: 'light'),
+        // Device(id: 'room1_tv', name: 'TV', icon: 'tv'),
+        Device(id: 'room1_airConditioner', name: 'Điều hòa', icon: 'ac'),
+        Device(id: 'room1_lamp1', name: 'Đèn chính', icon: 'light'),
+        Device(id: 'room1_lamp2', name: 'Đèn phụ 1', icon: 'light'),
+        Device(id: 'room1_lamp3', name: 'Đèn phụ 2', icon: 'light'),
       ],
     ),
     Room(
@@ -40,14 +45,18 @@ class IoTService {
       humidity: 70.0,
       voltage: 220.0,
       current: 0.8,
-      frequency: 50.0,
+      // frequency: 50.0,
       power: 176.0,
       energyUsage: 0.9,
       powerHistory: _generateInitialPowerData(),
       devices: [
-        Device(id: 'fan_2', name: 'Quạt bàn', icon: 'fan'),
-        Device(id: 'light_2', name: 'Đèn ngủ', icon: 'light'),
-        Device(id: 'ac_1', name: 'Điều hòa', icon: 'ac'),
+        // Device(id: 'room2_fan', name: 'Quạt bàn', icon: 'fan'),
+        // Device(id: 'room2_lamp1', name: 'Đèn ngủ', icon: 'light'),
+        // Device(id: 'room2_airConditioner', name: 'Điều hòa', icon: 'ac'),
+        Device(id: 'room2_lamp1', name: 'Đèn ngủ', icon: 'light'),
+        Device(id: 'room2_airConditioner', name: 'Điều hòa', icon: 'ac'),
+        Device(id: 'room2_lamp2', name: 'Đèn phụ 1', icon: 'light'),
+        Device(id: 'room2_lamp3', name: 'Đèn phụ 2', icon: 'light'),
       ],
     ),
     // Room(
@@ -76,6 +85,10 @@ class IoTService {
   // Stream controller cho dữ liệu MQTT
   final _mqttDataController = StreamController<List<RoomData>>.broadcast();
   Stream<List<RoomData>> get mqttDataStream => _mqttDataController.stream;
+
+  // Stream controller cho dữ liệu từ /ws/room1
+  final _room1DataController = StreamController<List<RoomData>>.broadcast();
+  Stream<List<RoomData>> get room1DataStream => _room1DataController.stream;
 
   // Tạo dữ liệu sơ bộ cho biểu đồ
   static List<PowerData> _generateInitialPowerData() {
@@ -165,18 +178,32 @@ class IoTService {
       print('Lỗi xử lý message: $e');
     }
   }
+    // Phương thức chọn kênh WebSocket dựa trên roomId
+  IOWebSocketChannel? getChannelForRoom(String roomId) {
+    switch (roomId) {
+      case '1':
+        return _channelRoom1;
+      case '2':
+        return _channelRoom2;
+      default:
+        return null;
+    }
+  }
 
   // Điều khiển thiết bị
   void controlDevice(String roomId, String deviceId, bool turnOn) {
-    if (_channelRoom1 != null && isConnected) {
+    final channel = getChannelForRoom(roomId);
+    if (channel != null && isConnected) {
       final message = jsonEncode({
         'type': 'control_device',
         'room_id': roomId,
         'device_id': deviceId,
         'action': turnOn ? 'ON' : 'OFF'
       });
-      print('Sending to channelRoom1: $message');
-      _channelRoom1!.sink.add(message);
+      print('Sending to room $roomId: $message');
+      channel.sink.add(message);
+    } else {
+      print('No channel for room $roomId or not connected');
     }
     
     // Cập nhật trạng thái local (optimistic update)
@@ -221,29 +248,32 @@ class IoTService {
     );
   }
 
+  // Xử lý message từ WebSocket phòng cụ thể (/ws/room1, /ws/room2)
   void _handleRoomMessage(String message, String roomId) {
     try {
-      final data = jsonDecode(message);
-      final List<dynamic> dataList = data is List ? data : [data];
-      for (var item in dataList) {
-        final roomData = RoomData.fromJson(item as Map<String, dynamic>);
-        final room = rooms.firstWhere((r) => r.id == roomId, orElse: () => rooms[0]);
-        room.temperature = roomData.temperature;
-        room.humidity = roomData.humidity;
-        room.energyUsage = roomData.energy;
-        if (roomData.voltage != null) room.voltage = roomData.voltage!;
-        if (roomData.current != null) room.current = roomData.current!;
-        if (roomData.power != null) {
-          room.power = roomData.power!;
-          room.powerHistory.add(PowerData(
-            time: DateTime.now(),
-            value: room.power,
-          ));
-          if (room.powerHistory.length > 30) {
-            room.powerHistory.removeAt(0);
-          }
+      final Map<String, dynamic> data = jsonDecode(message);
+      final room = rooms.firstWhere((r) => r.id == roomId);
+
+      // Cập nhật trạng thái thiết bị
+      for (var device in room.devices) {
+        if (data.containsKey(device.id)) {
+          device.isOn = data[device.id] == 1;
         }
       }
+
+      // Cập nhật công suất phòng nếu có
+      // final powerKey = 'room${roomId}_power';
+      // if (data.containsKey(powerKey)) {
+      //   room.power = data[powerKey].toDouble();
+      //   room.powerHistory.add(PowerData(
+      //     time: DateTime.now(),
+      //     value: room.power,
+      //   ));
+      //   if (room.powerHistory.length > 30) {
+      //     room.powerHistory.removeAt(0);
+      //   }
+      // }
+
       _roomsController.add(rooms);
     } catch (e) {
       print('Lỗi xử lý message phòng $roomId: $e');

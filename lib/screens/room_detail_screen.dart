@@ -19,6 +19,8 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+    
     return StreamBuilder<List<Room>>(
       stream: _iotService.roomsStream,
       initialData: _iotService.rooms,
@@ -57,7 +59,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                 PowerMetricsCard(
                   voltage: room.voltage,
                   current: room.current,
-                  frequency: room.frequency,
+                  // frequency: room.frequency,
                   power: room.power,
                   energyUsage: room.energyUsage,
                   powerHistory: room.powerHistory,

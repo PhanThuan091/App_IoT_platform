@@ -4,6 +4,8 @@ import 'dart:async';
 import '../models/room.dart';
 import '../models/room_data.dart';
 import '../services/iot_service.dart';
+import '../services/theme_service.dart';
+import 'package:provider/provider.dart';
 import 'room_detail_screen.dart';
 import 'package:intl/intl.dart';
 
@@ -100,7 +102,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     
     // Thay thế URL bằng địa chỉ thực của server
     // final success = await _iotService.connect('ws://192.168.100.74:1880/ws/smart_home');
-    final success = await _iotService.connect('ws://192.168.79.92:1880/ws/smart_home');
+    final success = await _iotService.connect('ws://192.168.79.91:1880/ws/smart_home');
+    // final success = await _iotService.connect('ws://196.169.7.206:1880/ws/smart_home');
     setState(() {
       _isConnected = success;
     });
@@ -142,8 +145,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeService = Provider.of<ThemeService>(context);
+    final isDarkMode = themeService.themeMode == ThemeMode.dark;
+    
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: isDarkMode ? Colors.grey[900] : Colors.grey[100],
       body: StreamBuilder<List<RoomData>>(
         stream: _iotService.mqttDataStream,
         builder: (context, mqttSnapshot) {
@@ -250,7 +256,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                                 width: 4,
                                                 height: 4,
                                                 decoration: BoxDecoration(
-                                                  color: Colors.grey[400],
+                                                  color: Colors.red[400],
                                                   shape: BoxShape.circle,
                                                 ),
                                               ),

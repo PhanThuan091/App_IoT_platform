@@ -10,7 +10,7 @@ class Room {
   // Thông số điện năng
   double voltage;        // Điện áp (V)
   double current;        // Dòng điện (A)
-  double frequency;      // Tần số (Hz)
+  // double frequency;      // Tần số (Hz)
   double power;          // Công suất tiêu thụ (W)
   double energyUsage;    // Số điện tiêu thụ (kWh)
   List<PowerData> powerHistory; // Lịch sử dữ liệu công suất
@@ -23,7 +23,7 @@ class Room {
     this.humidity = 0.0,
     this.voltage = 0.0,
     this.current = 0.0,
-    this.frequency = 0.0,
+    // this.frequency = 0.0,
     this.power = 0.0,
     this.energyUsage = 0.0,
     List<PowerData>? powerHistory,
