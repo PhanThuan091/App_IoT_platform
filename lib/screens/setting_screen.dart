@@ -30,31 +30,12 @@ class SettingsScreen extends StatelessWidget {
               subtitle: 'Xem và chỉnh sửa thông tin tài khoản',
               onTap: () {},
             ),
-            _buildSettingItem(
-              icon: Icons.notifications_none,
-              title: 'Thông báo',
-              subtitle: 'Cài đặt âm thanh và chế độ thông báo',
-              onTap: () {},
-            ),
-            _buildSettingItem(
-              icon: Icons.security,
-              title: 'Bảo mật',
-              subtitle: 'Đổi mật khẩu, xác thực hai lớp',
-              onTap: () {},
-            ),
-            
+                                 
             SizedBox(height: 24),
             
             // Phần cài đặt hệ thống
             _buildSectionTitle('Hệ thống', Icons.settings),
             SizedBox(height: 8),
-            _buildSettingItem(
-              icon: Icons.language,
-              title: 'Ngôn ngữ',
-              subtitle: 'Tiếng Việt',
-              trailing: Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {},
-            ),
             _buildSettingItem(
               icon: Icons.dark_mode,
               title: 'Giao diện',
@@ -68,53 +49,38 @@ class SettingsScreen extends StatelessWidget {
               ),
               onTap: () {},
             ),
-            _buildSettingItem(
-              icon: Icons.update,
-              title: 'Cập nhật',
-              subtitle: 'Kiểm tra phiên bản mới',
-              onTap: () {},
-            ),
+            // _buildSettingItem(
+            //   icon: Icons.update,
+            //   title: 'Cập nhật',
+            //   subtitle: 'Kiểm tra phiên bản mới',
+            //   onTap: () {},
+            // ),
             
             SizedBox(height: 24),
             
             // Phần cài đặt thiết bị
-            _buildSectionTitle('Thiết bị', Icons.devices),
-            SizedBox(height: 8),
-            _buildSettingItem(
-              icon: Icons.router,
-              title: 'Kết nối',
-              subtitle: 'Cài đặt kết nối mạng và WiFi',
-              onTap: () {},
-            ),
-            _buildSettingItem(
-              icon: Icons.save_alt,
-              title: 'Sao lưu dữ liệu',
-              subtitle: 'Tự động sao lưu hàng tuần',
-              trailing: Switch(
-                value: true,
-                onChanged: (value) {},
-                activeColor: Colors.blue,
-              ),
-              onTap: () {},
-            ),
-            _buildSettingItem(
-              icon: Icons.device_hub,
-              title: 'Quản lý thiết bị',
-              subtitle: 'Thêm và quản lý thiết bị thông minh',
-              onTap: () {},
-            ),
+            // _buildSectionTitle('Thiết bị', Icons.devices),
+            // SizedBox(height: 8),
+            // _buildSettingItem(
+            //   icon: Icons.router,
+            //   title: 'Kết nối',
+            //   subtitle: 'Cài đặt kết nối mạng và WiFi',
+            //   onTap: () {},
+            // ),
             
-            SizedBox(height: 24),
+            // _buildSettingItem(
+            //   icon: Icons.device_hub,
+            //   title: 'Quản lý thiết bị',
+            //   subtitle: 'Thêm và quản lý thiết bị thông minh',
+            //   onTap: () {},
+            // ),
+            
+            // SizedBox(height: 24),
             
             // Phần thông tin
             _buildSectionTitle('Thông tin', Icons.info),
             SizedBox(height: 8),
-            _buildSettingItem(
-              icon: Icons.help_outline,
-              title: 'Trợ giúp',
-              subtitle: 'Câu hỏi thường gặp và hướng dẫn sử dụng',
-              onTap: () {},
-            ),
+            
             _buildSettingItem(
               icon: Icons.privacy_tip_outlined,
               title: 'Chính sách riêng tư',
@@ -129,25 +95,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             
             SizedBox(height: 24),
-            
-            // Nút đăng xuất
-            Container(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: Icon(Icons.logout),
-                label: Text('Đăng xuất'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[400],
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ),
-            
+
             SizedBox(height: 24),
           ],
         ),

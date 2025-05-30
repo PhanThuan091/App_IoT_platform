@@ -154,7 +154,7 @@ class TemperatureHumidityCard extends StatelessWidget {
     if (temperature > 30) {
       return 'Nhiệt độ cao, nên bật điều hòa';
     } else if (temperature < 20) {
-      return 'Nhiệt độ thấp, cẩn thận cảm lạnh';
+      return 'Nhiệt độ thấp';
     } else if (humidity > 80) {
       return 'Độ ẩm cao, cần giảm độ ẩm';
     } else if (humidity < 40) {

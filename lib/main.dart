@@ -53,15 +53,15 @@ class MyApp extends StatelessWidget {
     
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'IoT Smart Home',
+      title: 'IoT Platform',
       themeMode: themeService.themeMode,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.cyan,
         fontFamily: 'Roboto',
         brightness: Brightness.light,
         useMaterial3: true,
         appBarTheme: AppBarTheme(
-          backgroundColor: Colors.blue,
+          backgroundColor: const Color.fromARGB(255, 120, 179, 228),
           foregroundColor: Colors.white,
           centerTitle: true,
           elevation: 0,

@@ -18,11 +18,7 @@ class _MainScreenState extends State<MainScreen> {
     SettingsScreen(),
   ];
   
-  final List<String> _titles = [
-    'Trang chủ',
-    'Thông báo',
-    'Cài đặt',
-  ];
+
   
   void _onTabTapped(int index) {
     setState(() {

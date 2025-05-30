@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 import 'dart:async';
 import '../models/room.dart';
 import '../models/room_data.dart';
@@ -15,6 +16,7 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  static const String _baseIpAddress = '196.169.5.109';
   late String _currentTime;
   late String _greeting;
   late String _currentDate;
@@ -29,15 +31,20 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _currentTime = _getCurrentTime();
     _greeting = _getGreeting();
     _currentDate = _getCurrentDate();
-    _timer = Timer.periodic(Duration(seconds: 1), _updateTime);
-    
+    // _timer = Timer.periodic(Duration(seconds: 1), _updateTime);
     // Kiểm tra trạng thái kết nối ban đầu
-    _isConnected = _iotService.isConnected;
-    
+    _isConnected = _iotService.isConnected;    
     // Khởi tạo kết nối nếu chưa kết nối
     if (!_isConnected) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
         _connectToServer();
+        // _iotService.connectRoom2('ws://192.168.79.91:1880/ws/dataRoom2');
+        _iotService.connectRoom2('ws://$_baseIpAddress:1880/ws/dataRoom2');
+        if (!_iotService.isConnected) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Không thể kết nối tới /ws/dataRoom2')),
+          );
+        }
       });
     }
     _reconnectToServer();
@@ -46,8 +53,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
     // _iotService.connectRoom1('ws://192.168.79.92:1880/ws/room1');
     // _iotService.connectRoom2('ws://192.168.79.92:1880/ws/room2');
     //wifi home
-    _iotService.connectRoom1('ws://raspberrypi:1880/ws/room1');
-    _iotService.connectRoom2('ws://raspberrypi:1880/ws/room2');
+    _iotService.connectDeviceControl('ws://$_baseIpAddress:1880/ws/devices');
+    
   }
 
   void _reconnectToServer() {
@@ -78,9 +85,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   // Lấy lời chào
   String _getGreeting() {
     final now = DateTime.now();
-    if (now.hour < 12) return "Chào buổi sáng";
-    else if (now.hour < 18) return "Chào buổi chiều";
-    else return "Chào buổi tối";
+    if (now.hour < 12) return "Good morning, Phan Thành Thuận";
+    else if (now.hour < 18) return "Good afternoon, Phan Thành Thuận";
+    else return "Good evening, Phan Thành Thuận";
   }
 
   // Cập nhật thời gian
@@ -102,8 +109,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
     
     // Thay thế URL bằng địa chỉ thực của server
     // final success = await _iotService.connect('ws://192.168.100.74:1880/ws/smart_home');
-    final success = await _iotService.connect('ws://192.168.79.91:1880/ws/smart_home');
+    // final success = await _iotService.connect('ws://192.168.79.91:1880/ws/smart_home');
     // final success = await _iotService.connect('ws://196.169.7.206:1880/ws/smart_home');
+
+    final success = await _iotService.connect('ws://$_baseIpAddress:1880/ws/smart_home');
+    
+    
     setState(() {
       _isConnected = success;
     });
@@ -118,25 +129,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       );
     }
   }
-
-  // Tính toán tổng công suất tiêu thụ từ MQTT
-  double _calculateTotalPowerFromMqtt() {
-    double total = 0;
-    for (var data in _mqttData) {
-      total += data.power ?? 0;
-    }
-    return total;
-  }
-
-  // Tính toán tổng điện năng tiêu thụ từ MQTT
-  double _calculateTotalEnergyFromMqtt() {
-    double total = 0;
-    for (var data in _mqttData) {
-      total += data.energy;
-    }
-    return total;
-  }
-
   @override
   void dispose() {
     _timer.cancel();
@@ -150,14 +142,66 @@ class _DashboardScreenState extends State<DashboardScreen> {
     
     return Scaffold(
       backgroundColor: isDarkMode ? Colors.grey[900] : Colors.grey[100],
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 45,
+              height: 45,
+              margin: EdgeInsets.only(right: 20, top: 8, bottom: 8),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(6),
+                child: Image.asset(
+                  'lib/image/feee.png', // Thay đổi tên file theo ảnh thực tế
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.blue,
+                      child: Icon(Icons.home, color: Colors.white, size: 20),
+                    );
+                  },
+                ),
+              ),
+            ),
+            Text(
+              'My Dashboard',
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : Colors.black87,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
+            Container(
+              width: 40,
+              height: 50,
+              margin: EdgeInsets.only(left: 16),
+              child: ClipRRect(
+                // borderRadius: BorderRadius.circular(6),
+                child: Image.asset(
+                  'lib/image/ute.png', // Thay đổi tên file theo ảnh thực tế
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.green,
+                      child: Icon(Icons.dashboard, color: Colors.white, size: 20),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),),
       body: StreamBuilder<List<RoomData>>(
         stream: _iotService.mqttDataStream,
         builder: (context, mqttSnapshot) {
           if (mqttSnapshot.hasData) {
             _mqttData = mqttSnapshot.data!;
           }
-          final totalPower = _calculateTotalPowerFromMqtt();
-          final totalEnergy = _calculateTotalEnergyFromMqtt();
+          
           return StreamBuilder<List<Room>>(
             stream: _iotService.roomsStream,
             initialData: _iotService.rooms,
@@ -169,11 +213,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Header với ngày giờ
-                      _buildHeader(),
-                      SizedBox(height: 24),
-                      // Thẻ tổng quan tiêu thụ điện
-                      _buildPowerSummaryCard(totalPower, totalEnergy),
+                      // Header với thông tin thời tiết
+                      _buildWeatherHeader(isDarkMode),
                       SizedBox(height: 24),
                       // Tiêu đề danh sách phòng
                       Text(
@@ -270,44 +311,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             ],
                                           ),
                                           SizedBox(height: 4),
-                                          Wrap(
-                                            spacing: 16,
-                                            runSpacing: 4,
-                                            children: [
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(Icons.thermostat, size: 14, color: Colors.orange),
-                                                  SizedBox(width: 4),
-                                                  Text('${mqttRoom.temperature.toStringAsFixed(1)}°C', style: TextStyle(fontSize: 12)),
-                                                ],
-                                              ),
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(Icons.water_drop, size: 14, color: Colors.blue),
-                                                  SizedBox(width: 4),
-                                                  Text('${mqttRoom.humidity.toStringAsFixed(1)}%', style: TextStyle(fontSize: 12)),
-                                                ],
-                                              ),
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(Icons.bolt, size: 14, color: Colors.red),
-                                                  SizedBox(width: 4),
-                                                  Text('${mqttRoom.power?.toStringAsFixed(1) ?? '0.0'} W', style: TextStyle(fontSize: 12)),
-                                                ],
-                                              ),
-                                              Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Icon(Icons.electric_meter, size: 14, color: Colors.green),
-                                                  SizedBox(width: 4),
-                                                  Text('${mqttRoom.energy.toStringAsFixed(1)} kWh', style: TextStyle(fontSize: 12)),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
+                                          // Wrap(
+                                          //   spacing: 16,
+                                          //   runSpacing: 4,
+                                          //   children: [
+                                          //     Row(
+                                          //       mainAxisSize: MainAxisSize.min,
+                                          //       children: [
+                                          //         Icon(Icons.thermostat, size: 14, color: Colors.orange),
+                                          //         SizedBox(width: 4),
+                                          //         Text('${mqttRoom.temperature.toStringAsFixed(1)}°C', style: TextStyle(fontSize: 12)),
+                                          //       ],
+                                          //     ),
+                                          //     Row(
+                                          //       mainAxisSize: MainAxisSize.min,
+                                          //       children: [
+                                          //         Icon(Icons.water_drop, size: 14, color: Colors.blue),
+                                          //         SizedBox(width: 4),
+                                          //         Text('${mqttRoom.humidity.toStringAsFixed(1)}%', style: TextStyle(fontSize: 12)),
+                                          //       ],
+                                          //     ),
+                                          //     Row(
+                                          //       mainAxisSize: MainAxisSize.min,
+                                          //       children: [
+                                          //         Icon(Icons.bolt, size: 14, color: Colors.red),
+                                          //         SizedBox(width: 4),
+                                          //         Text('${mqttRoom.power?.toStringAsFixed(1) ?? '0.0'} W', style: TextStyle(fontSize: 12)),
+                                          //       ],
+                                          //     ),
+                                          //     Row(
+                                          //       mainAxisSize: MainAxisSize.min,
+                                          //       children: [
+                                          //         Icon(Icons.electric_meter, size: 14, color: Colors.green),
+                                          //         SizedBox(width: 4),
+                                          //         Text('${mqttRoom.energy.toStringAsFixed(1)} kWh', style: TextStyle(fontSize: 12)),
+                                          //       ],
+                                          //     ),
+                                          //   ],
+                                          // ),
                                         ],
                                       ),
                                     ),
@@ -347,71 +388,100 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
   
-  // Widget header với ngày giờ
-  Widget _buildHeader() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              _greeting,
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 4),
-            Text(
-              '$_currentDate',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-            ),
-          ],
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              _currentTime,
+  // Widget header với thông tin thời tiết
+  Widget _buildWeatherHeader(bool isDarkMode) {
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDarkMode ? Colors.grey[800] : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: isDarkMode ? Colors.black.withOpacity(0.2) : Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 10,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Tiêu đề khóa luận
+          Center(
+            child: Text(
+              'Khóa luận tốt nghiệp',
               style: TextStyle(
-                fontSize: 32, 
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: Colors.blue[700],
+                color: isDarkMode ? Colors.white : Colors.black87,
               ),
             ),
-            // Nút trạng thái kết nối
-            GestureDetector(
-              onTap: _isConnected ? null : _connectToServer,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: _isConnected ? Colors.green[100] : Colors.red[100],
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: _isConnected ? Colors.green[300]! : Colors.red[300]!,
+          ),
+          // SizedBox(height: 8),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: [
+          //     Expanded(
+          //       child: Text(
+          //         'Xây dựng nền tảng IoT quản lý năng lượng cho phòng trọ',
+          //         style: TextStyle(
+          //           fontSize: 16,
+          //           fontWeight: FontWeight.bold,
+          //           color: isDarkMode ? Colors.white : Colors.black87,
+          //         ),
+          //         textAlign: TextAlign.center,
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          SizedBox(height: 16),
+          // Lời chào và nhiệt độ
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Text(
+                  _greeting,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: isDarkMode ? Colors.white : Colors.black87,
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Icon(
-                      _isConnected ? Icons.wifi : Icons.wifi_off,
-                      size: 14,
-                      color: _isConnected ? Colors.green[700] : Colors.red[700],
-                    ),
-                    SizedBox(width: 6),
-                    Text(
-                      _isConnected ? 'Đã kết nối' : 'Mất kết nối',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: _isConnected ? Colors.green[700] : Colors.red[700],
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
+              ),
+            ],
+          ),
+          
+          SizedBox(height: 16),
+          
+          // Thông tin vị trí và thời tiết
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.location_on, size: 16, color: isDarkMode ? Colors.grey[400] : Colors.grey[600]),
+              SizedBox(width: 4),
+              Text(
+                'TP. Hồ Chí Minh, Việt Nam',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
                 ),
               ),
-            ),
-          ],
-        ),
-      ],
+              SizedBox(width: 8),
+              Text(
+                '🌤',
+                style: TextStyle(fontSize: 16),
+              ),
+            ],
+          ),
+          
+          // SizedBox(height: 10),
+          
+          // Thông tin chi tiết thời tiết
+        ],
+      ),
     );
   }
   
@@ -619,4 +689,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
     
     return Icons.home;
   }
-} 
+}

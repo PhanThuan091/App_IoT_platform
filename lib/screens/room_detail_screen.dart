@@ -63,6 +63,9 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                   power: room.power,
                   energyUsage: room.energyUsage,
                   powerHistory: room.powerHistory,
+                  voltageHistory: room.voltageHistory,
+                  currentHistory: room.currentHistory,
+                  energyHistory: room.energyHistory,
                 ),
                 
                 SizedBox(height: 24),

@@ -10,10 +10,12 @@ class Room {
   // Thông số điện năng
   double voltage;        // Điện áp (V)
   double current;        // Dòng điện (A)
-  // double frequency;      // Tần số (Hz)
   double power;          // Công suất tiêu thụ (W)
   double energyUsage;    // Số điện tiêu thụ (kWh)
-  List<PowerData> powerHistory; // Lịch sử dữ liệu công suất
+  List<PowerData> powerHistory;    // Lịch sử dữ liệu công suất
+  List<PowerData> voltageHistory;  // Lịch sử dữ liệu điện áp
+  List<PowerData> currentHistory;  // Lịch sử dữ liệu dòng điện
+  List<PowerData> energyHistory;   // Lịch sử dữ liệu điện năng
   
   Room({
     required this.id,
@@ -23,11 +25,16 @@ class Room {
     this.humidity = 0.0,
     this.voltage = 0.0,
     this.current = 0.0,
-    // this.frequency = 0.0,
     this.power = 0.0,
     this.energyUsage = 0.0,
     List<PowerData>? powerHistory,
-  }) : this.powerHistory = powerHistory ?? [];
+    List<PowerData>? voltageHistory,
+    List<PowerData>? currentHistory,
+    List<PowerData>? energyHistory,
+  }) : this.powerHistory = powerHistory ?? [],
+       this.voltageHistory = voltageHistory ?? [],
+       this.currentHistory = currentHistory ?? [],
+       this.energyHistory = energyHistory ?? [];
 }
 
 class Device {
@@ -54,4 +61,4 @@ class PowerData {
     required this.time,
     required this.value,
   });
-} 
+}
