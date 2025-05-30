@@ -16,6 +16,8 @@ class DeviceControlCard extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Card(
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -52,7 +54,7 @@ class DeviceControlCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: device.isOn ? Colors.black : Colors.grey[600],
+                      color: device.isOn ? (isDarkMode ? Colors.white : Colors.black) : (isDarkMode ? Colors.grey[400] : Colors.grey[600]),
                     ),
                   ),
                   SizedBox(height: 4),
@@ -68,7 +70,7 @@ class DeviceControlCard extends StatelessWidget {
                         device.isOn ? 'Đang hoạt động' : 'Đã tắt',
                         style: TextStyle(
                           fontSize: 12,
-                          color: device.isOn ? Colors.green : Colors.grey,
+                          color: device.isOn ? Colors.green : (isDarkMode ? Colors.grey[400] : Colors.grey),
                         ),
                       ),
                     ],

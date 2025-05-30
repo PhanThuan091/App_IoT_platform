@@ -102,6 +102,7 @@ class _RoomDetailScreenState extends State<RoomDetailScreen> {
                         onToggle: (value) {
                           _iotService.controlDevice(room.id, device.id, value);
                         },
+                        
                       ),
                     );
                   },

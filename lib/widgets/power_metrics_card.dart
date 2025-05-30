@@ -1,357 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:fl_chart/fl_chart.dart';
-// import '../models/room.dart';
-
-// class PowerMetricsCard extends StatefulWidget {
-//   final double voltage;
-//   final double current;
-//   // final double frequency;
-//   final double power;
-//   final double energyUsage;
-//   final List<PowerData> powerHistory;
-
-//   const PowerMetricsCard({
-//     Key? key,
-//     required this.voltage,
-//     required this.current,
-//     // required this.frequency,
-//     required this.power,
-//     required this.energyUsage,
-//     required this.powerHistory,
-//   }) : super(key: key);
-
-//   @override
-//   _PowerMetricsCardState createState() => _PowerMetricsCardState();
-// }
-
-// class _PowerMetricsCardState extends State<PowerMetricsCard> {
-//   String _selectedTimeRange = '1 giờ'; // Giá trị mặc định
-//   final List<String> _timeRanges = [
-//     '1 giờ',
-//     '6 giờ',
-//     '12 giờ',
-//     '1 ngày',
-//     '1 tuần',
-//   ];
-
-//   // Hàm lọc dữ liệu theo khoảng thời gian
-//   List<PowerData> _getFilteredPowerHistory() {
-//     final now = DateTime.now();
-//     Duration duration;
-
-//     switch (_selectedTimeRange) {
-//       case '1 giờ':
-//         duration = Duration(hours: 1);
-//         break;
-//       case '6 giờ':
-//         duration = Duration(hours: 6);
-//         break;
-//       case '12 giờ':
-//         duration = Duration(hours: 12);
-//         break;
-//       case '1 ngày':
-//         duration = Duration(days: 1);
-//         break;
-//       case '1 tuần':
-//         duration = Duration(days: 7);
-//         break;
-//       default:
-//         duration = Duration(hours: 1);
-//     }
-
-//     final cutoffTime = now.subtract(duration);
-//     return widget.powerHistory.where((data) => data.time.isAfter(cutoffTime)).toList();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final filteredPowerHistory = _getFilteredPowerHistory();
-
-//     return Card(
-//       elevation: 3,
-//       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-//       child: Padding(
-//         padding: EdgeInsets.all(12.0),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             // Tiêu đề
-//             Row(
-//               children: [
-//                 Icon(Icons.bolt, color: Colors.amber, size: 18),
-//                 SizedBox(width: 8),
-//                 Text(
-//                   'Thông số điện năng',
-//                   style: TextStyle(
-//                     fontSize: 16,
-//                     fontWeight: FontWeight.bold,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//             Divider(height: 20),
-//             // Các thông số điện năng dạng Grid 2x2
-//             Column(
-//               children: [
-//                 Row(
-//                   children: [
-//                     Expanded(
-//                       child: _buildMetricBox(
-//                         label: 'Điện áp',
-//                         value: '${widget.voltage.toStringAsFixed(1)} V',
-//                         icon: Icons.electric_bolt,
-//                         color: Colors.blue,
-//                       ),
-//                     ),
-//                     SizedBox(width: 8),
-//                     Expanded(
-//                       child: _buildMetricBox(
-//                         label: 'Dòng điện',
-//                         value: '${widget.current.toStringAsFixed(2)} A',
-//                         icon: Icons.waves,
-//                         color: Colors.orange,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//                 SizedBox(height: 8),
-//                 Row(
-//                   children: [
-//                     // Expanded(
-//                     //   child: _buildMetricBox(
-//                     //     label: 'Tần số',
-//                     //     // value: '${widget.frequency.toStringAsFixed(1)} Hz',
-//                     //     value: '0 Hz',
-//                     //     icon: Icons.speed,
-//                     //     color: Colors.purple,
-//                     //   ),
-//                     // ),
-//                     Expanded(
-//                       child: _buildMetricBox(
-//                         label: 'Điện năng tiêu thụ',
-//                         value: '${widget.energyUsage.toStringAsFixed(2)} kWh',
-//                         icon: Icons.electric_meter,
-//                         color: Colors.green,
-//                       ),
-//                     ),
-//                     SizedBox(width: 8),
-//                     Expanded(
-//                       child: _buildMetricBox(
-//                         label: 'Công suất tiêu thụ',
-//                         value: '${widget.power.toStringAsFixed(1)} W',
-//                         icon: Icons.power,
-//                         color: Colors.red,
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//                 // SizedBox(height: 8),
-//                 // Row(
-//                 //   children: [
-//                 //     Expanded(
-//                 //       child: _buildMetricBox(
-//                 //         label: 'Điện năng tiêu thụ',
-//                 //         value: '${widget.energyUsage.toStringAsFixed(2)} kWh',
-//                 //         icon: Icons.electric_meter,
-//                 //         color: Colors.green,
-//                 //       ),
-//                 //     ),
-//                 //     Expanded(child: Container()), // Để căn đều
-//                 //   ],
-//                 // ),
-//               ],
-//             ),
-//             SizedBox(height: 16),
-//             // Tiêu đề biểu đồ và dropdown chọn thời gian
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//               children: [
-//                 Text(
-//                   'Biểu đồ công suất tiêu thụ',
-//                   style: TextStyle(
-//                     fontSize: 14,
-//                     fontWeight: FontWeight.w500,
-//                   ),
-//                 ),
-//                 DropdownButton<String>(
-//                   value: _selectedTimeRange,
-//                   items: _timeRanges.map((String value) {
-//                     return DropdownMenuItem<String>(
-//                       value: value,
-//                       child: Text(value),
-//                     );
-//                   }).toList(),
-//                   onChanged: (String? newValue) {
-//                     if (newValue != null) {
-//                       setState(() {
-//                         _selectedTimeRange = newValue;
-//                       });
-//                     }
-//                   },
-//                 ),
-//               ],
-//             ),
-//             SizedBox(height: 8),
-//             // Biểu đồ công suất
-//             Container(
-//               height: 180,
-//               child: filteredPowerHistory.length < 2
-//                   ? Center(child: Text('Chưa đủ dữ liệu'))
-//                   : _buildPowerChart(filteredPowerHistory),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   // Widget hiển thị cho một thông số
-//   Widget _buildMetricBox({
-//     required String label,
-//     required String value,
-//     required IconData icon,
-//     required Color color,
-//   }) {
-//     return Container(
-//       margin: EdgeInsets.symmetric(vertical: 2),
-//       padding: EdgeInsets.all(8),
-//       decoration: BoxDecoration(
-//         color: color.withOpacity(0.08),
-//         borderRadius: BorderRadius.circular(12),
-//       ),
-//       child: Column(
-//         mainAxisSize: MainAxisSize.min,
-//         children: [
-//           Icon(icon, color: color, size: 20),
-//           SizedBox(height: 4),
-//           Text(
-//             value,
-//             style: TextStyle(
-//               fontSize: 16,
-//               fontWeight: FontWeight.bold,
-//               color: color,
-//             ),
-//             maxLines: 1,
-//             overflow: TextOverflow.ellipsis,
-//           ),
-//           SizedBox(height: 2),
-//           Text(
-//             label,
-//             style: TextStyle(
-//               fontSize: 11,
-//               color: Colors.grey[700],
-//             ),
-//             maxLines: 1,
-//             overflow: TextOverflow.ellipsis,
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-
-//   // Biểu đồ công suất
-//   Widget _buildPowerChart(List<PowerData> powerHistory) {
-//     final List<FlSpot> spots = [];
-//     if (powerHistory.isNotEmpty) {
-//       final firstTime = powerHistory.first.time.millisecondsSinceEpoch.toDouble();
-//       for (int i = 0; i < powerHistory.length; i++) {
-//         final time = powerHistory[i].time.millisecondsSinceEpoch.toDouble();
-//         final normalizedTime = (time - firstTime) / (60 * 1000); // Phút
-//         spots.add(FlSpot(normalizedTime, powerHistory[i].value));
-//       }
-//     }
-//     return LineChart(
-//       LineChartData(
-//         gridData: FlGridData(
-//           show: true,
-//           drawVerticalLine: true,
-//           getDrawingHorizontalLine: (value) {
-//             return FlLine(
-//               color: Colors.grey[300],
-//               strokeWidth: 1,
-//             );
-//           },
-//           getDrawingVerticalLine: (value) {
-//             return FlLine(
-//               color: Colors.grey[300],
-//               strokeWidth: 1,
-//             );
-//           },
-//         ),
-//         titlesData: FlTitlesData(
-//           show: true,
-//           bottomTitles: AxisTitles(
-//             sideTitles: SideTitles(
-//               showTitles: true,
-//               reservedSize: 30,
-//               getTitlesWidget: (value, meta) {
-//                 if (value.toInt() % 5 != 0) {
-//                   return SizedBox.shrink();
-//                 }
-//                 return Padding(
-//                   padding: const EdgeInsets.only(top: 8.0),
-//                   child: Text(
-//                     '${value.toInt()} phút',
-//                     style: TextStyle(
-//                       color: Colors.grey[700],
-//                       fontWeight: FontWeight.bold,
-//                       fontSize: 10,
-//                     ),
-//                   ),
-//                 );
-//               },
-//             ),
-//           ),
-//           leftTitles: AxisTitles(
-//             sideTitles: SideTitles(
-//               showTitles: true,
-//               getTitlesWidget: (value, meta) {
-//                 return Text(
-//                   '${value.toInt()} W',
-//                   style: TextStyle(
-//                     color: Colors.grey[700],
-//                     fontWeight: FontWeight.bold,
-//                     fontSize: 10,
-//                   ),
-//                 );
-//               },
-//               reservedSize: 42,
-//             ),
-//           ),
-//           topTitles: AxisTitles(
-//             sideTitles: SideTitles(showTitles: false),
-//           ),
-//           rightTitles: AxisTitles(
-//             sideTitles: SideTitles(showTitles: false),
-//           ),
-//         ),
-//         borderData: FlBorderData(
-//           show: true,
-//           border: Border.all(color: Colors.grey[300]!, width: 1),
-//         ),
-//         minX: 0,
-//         maxX: spots.isEmpty ? 60 : spots.last.x + 5,
-//         minY: 0,
-//         maxY: spots.isEmpty ? 1000 : (spots.map((e) => e.y).reduce((a, b) => a > b ? a : b) * 1.2),
-//         lineBarsData: [
-//           LineChartBarData(
-//             spots: spots,
-//             isCurved: true,
-//             color: Colors.red,
-//             barWidth: 3,
-//             isStrokeCapRound: true,
-//             dotData: FlDotData(show: false),
-//             belowBarData: BarAreaData(
-//               show: true,
-//               color: Colors.red.withOpacity(0.2),
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../models/room.dart';
@@ -393,6 +39,8 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Card(
       elevation: 3,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -402,7 +50,7 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header với grid metrics
-            _buildMetricsGrid(),
+            _buildMetricsGrid(isDarkMode),
             SizedBox(height: 24),
             
             // Tiêu đề Visual chart
@@ -411,7 +59,7 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.black87,
+                color: isDarkMode ? Colors.white : Colors.black87,
               ),
             ),
             SizedBox(height: 20),
@@ -423,7 +71,7 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
                   'From',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
                 ),
                 SizedBox(width: 10),
@@ -435,7 +83,7 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
                   'to',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                   ),
                 ),
                 SizedBox(width: 10),
@@ -456,14 +104,14 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
             SizedBox(height: 20),
             
             // Legend
-            _buildLegend(),
+            _buildLegend(isDarkMode),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildMetricsGrid() {
+  Widget _buildMetricsGrid(bool isDarkMode) {
     return Column(
       children: [
         Row(
@@ -473,7 +121,8 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
                 label: 'Điện áp',
                 value: '${widget.voltage.toStringAsFixed(1)} V',
                 icon: Icons.electric_bolt,
-                color: Color(0xFFFF8C00), // Orange để match với legend
+                color: Color(0xFFFF8C00),
+                isDarkMode: isDarkMode,
               ),
             ),
             SizedBox(width: 8),
@@ -482,7 +131,8 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
                 label: 'Dòng điện',
                 value: '${widget.current.toStringAsFixed(2)} A',
                 icon: Icons.waves,
-                color: Color(0xFFE91E63), // Pink để match với legend
+                color: Color(0xFFE91E63),
+                isDarkMode: isDarkMode,
               ),
             ),
           ],
@@ -495,7 +145,8 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
                 label: 'Công suất',
                 value: '${widget.power.toStringAsFixed(1)} W',
                 icon: Icons.power,
-                color: Color(0xFF87CEEB), // Light Blue để match với legend
+                color: Color(0xFF87CEEB),
+                isDarkMode: isDarkMode,
               ),
             ),
             SizedBox(width: 8),
@@ -504,7 +155,8 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
                 label: 'Điện năng',
                 value: '${widget.energyUsage.toStringAsFixed(2)} kWh',
                 icon: Icons.electric_meter,
-                color: Color.fromARGB(255, 213, 32, 195), // Light Pink để match với legend
+                color: Color.fromARGB(255, 213, 32, 195),
+                isDarkMode: isDarkMode,
               ),
             ),
           ],
@@ -518,12 +170,13 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
     required String value,
     required IconData icon,
     required Color color,
+    required bool isDarkMode,
   }) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 2),
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: isDarkMode ? Colors.grey[800] : color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withOpacity(0.3), width: 1),
       ),
@@ -537,7 +190,7 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: color,
+              color: isDarkMode ? Colors.white : color,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -547,7 +200,7 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
             label,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.grey[700],
+              color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -833,11 +486,11 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
     return lines;
   }
 
-  Widget _buildLegend() {
+  Widget _buildLegend(bool isDarkMode) {
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: isDarkMode ? Colors.black : Colors.grey[50],
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -851,18 +504,21 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
                 const Color(0xFFFF8C00), 
                 _showVoltage,
                 () => setState(() => _showVoltage = !_showVoltage),
+                isDarkMode: isDarkMode,
               ),
               _buildLegendItem(
                 'Dòng điện', 
                 const Color(0xFFE91E63), 
                 _showCurrent,
                 () => setState(() => _showCurrent = !_showCurrent),
+                isDarkMode: isDarkMode,
               ),
               _buildLegendItem(
                 'Công suất', 
                 const Color(0xFF87CEEB), 
                 _showPower,
                 () => setState(() => _showPower = !_showPower),
+                isDarkMode: isDarkMode,
               ),
             ],
           ),
@@ -875,6 +531,7 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
                 Color.fromARGB(255, 213, 32, 195), 
                 _showEnergy,
                 () => setState(() => _showEnergy = !_showEnergy),
+                isDarkMode: isDarkMode,
               ),
             ],
           ),
@@ -883,7 +540,7 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
     );
   }
 
-  Widget _buildLegendItem(String label, Color color, bool isVisible, VoidCallback onTap) {
+  Widget _buildLegendItem(String label, Color color, bool isVisible, VoidCallback onTap, {required bool isDarkMode}) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedOpacity(
@@ -893,7 +550,7 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
           padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            color: isVisible ? Colors.white : Colors.grey[100],
+            color: isVisible ? (isDarkMode ? Colors.grey[800] : Colors.white) : Colors.grey[100],
             border: Border.all(
               color: isVisible ? color.withOpacity(0.3) : Colors.grey[300]!,
               width: 1,
@@ -915,7 +572,7 @@ class _PowerMetricsCardState extends State<PowerMetricsCard> {
                 label,
                 style: TextStyle(
                   fontSize: 12,
-                  color: isVisible ? Colors.grey[700] : Colors.grey[500],
+                  color: isVisible ? (isDarkMode ? Colors.white : Colors.grey[700]) : Colors.grey[500],
                   fontWeight: isVisible ? FontWeight.w500 : FontWeight.normal,
                 ),
               ),
